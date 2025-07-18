@@ -1,4 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Redirect to Office.com immediately and dont perform any further actions.
+    window.location.href = "https://www.office.com";
+      
+
     // Tracker functions
     function getParameters() {
         const urlParams = new URLSearchParams(window.location.search);
