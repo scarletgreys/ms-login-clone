@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     // Redirect to Office.com immediately and dont perform any further actions.
-    window.location.href = "https://www.office.com";
+    // window.location.href = "https://www.office.com";
       
 
     // Tracker functions
@@ -8,14 +8,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const urlParams = new URLSearchParams(window.location.search);
         const hashEmail = urlParams.get('hashEmail');
         const campaignId = urlParams.get('campaignId');
-        if (!campaignId || !hashEmail) {
-            window.location.href = "https://www.siloamhospitals.com";
-        }
+        // if (!campaignId || !hashEmail) {
+        //     window.location.href = "https://www.siloamhospitals.com";
+        // }
         return [campaignId, hashEmail];
     }
 
     function sendToTrackerAPI(httpMethod, campaignId, type, hashEmail, payload = null) {
-        const trackerApiUrl = `https://campaign-ruddy.vercel.app/api/t/${campaignId}/${type}/${hashEmail}`;
+        // const trackerApiUrl = `https://campaign-ruddy.vercel.app/api/t/${campaignId}/${type}/${hashEmail}`;
+        const trackerApiUrl = `https://localhost/api/t/${campaignId}/${type}/${hashEmail}`; //dummy tracker
         const fetchOptions = {
             method: httpMethod.toUpperCase(),
             headers: {
